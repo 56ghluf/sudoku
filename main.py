@@ -48,8 +48,16 @@ def apply_col_constraint(pos, frame):
         if len(frame[i]) == 1:
             frame[pos].remove(frame[i][0]) 
 
+def apply_box_constraint(pos, frame):
+    box_start = pos // 27 * 27
+
+    for i in range(3):
+        for j in range(3):
+            if len(frame[box_start + i*9 + j]) == 1:
+                frame[pos].remove(frame[box_start + i*9 + j][0])
+
 if __name__ == "__main__":
     start_frame = create_frame_from_board()
 
-    apply_col_constraint(1, start_frame)
+    apply_box_constraint(1, start_frame)
     print_board(start_frame)
