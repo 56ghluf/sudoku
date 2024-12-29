@@ -1,4 +1,5 @@
 from itertools import product
+from copy import deepcopy
 
 board = [
         6, 0, 0, 1, 0, 0, 0, 0, 2,
@@ -82,13 +83,21 @@ def apply_box_constraint(pos, frame):
                 except:
                     already_removed_count += 1
 
+def solve_sudoku():
+    # Run through sudoku until all constraints are filled
+    new_frame = create_frame_from_board()
+    old_frame = deepcopy(new_frame)
+
+    for i in range(81):
+        apply_constraints(i, new_frame)
+
+    while old_frame != new_frame:
+        old_frame = deepcopy(new_frame)
+
+        for i in range(81):
+            apply_constraints(i, new_frame)
+
+    # This is where the juicy stuff begins
+
 if __name__ == "__main__":
-    start_frame = create_frame_from_board()
-
-    for i in range(4):
-        for j in range(81):
-            apply_constraints(j, start_frame)
-        
-    print_board(start_frame)
-
-    print(already_removed_count)
+    solve_sudoku()
