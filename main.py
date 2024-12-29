@@ -1,17 +1,19 @@
 from itertools import product
 from copy import deepcopy
 
-board = [
-        6, 0, 0, 1, 0, 0, 0, 0, 2,
-        8, 0, 1, 0, 9, 0, 0, 0, 0,
-        0, 7, 5, 0, 8, 4, 0, 0, 0,
-        4, 3, 0, 0, 2, 0, 5, 6, 1,
-        5, 1, 8, 7, 0, 0, 4, 0, 9,
-        0, 9, 6, 4, 1, 0, 3, 0, 0,
-        0, 0, 0, 0, 7, 0, 0, 0, 0,
-        0, 6, 0, 0, 3, 1, 0, 5, 0,
-        7, 0, 2, 5, 4, 0, 6, 0, 3,
-    ]
+#board = [
+#        6, 0, 0, 1, 0, 0, 0, 0, 2,
+#        8, 0, 1, 0, 9, 0, 0, 0, 0,
+#        0, 7, 5, 0, 8, 4, 0, 0, 0,
+#        4, 3, 0, 0, 2, 0, 5, 6, 1,
+#        5, 1, 8, 7, 0, 0, 4, 0, 9,
+#        0, 9, 6, 4, 1, 0, 3, 0, 0,
+#        0, 0, 0, 0, 7, 0, 0, 0, 0,
+#        0, 6, 0, 0, 3, 1, 0, 5, 0,
+#        7, 0, 2, 5, 4, 0, 6, 0, 3,
+#    ]
+
+board = [0, 3, 0, 2, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 5, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 7, 0, 0, 1, 0, 7, 0, 6, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 3, 0, 9, 0, 0, 0, 0, 0, 0, 7, 6, 0, 0, 4, 6, 0, 0, 5, 0, 2, 0, 0, 0, 1, 0, 0, 0, 8, 4, 0, 0]
 
 def print_board(frame=board):
     for i in range(9):
@@ -19,6 +21,8 @@ def print_board(frame=board):
             print(frame[i*9+j], end=" ")
         print()
     print()
+
+print_board()
 
 def create_frame_from_board():
     frame = [None] * 81
@@ -98,6 +102,7 @@ def solve_sudoku():
             apply_constraints(i, new_frame)
 
     # This is where the juicy stuff begins
+    frames = [new_frame]
 
 if __name__ == "__main__":
     solve_sudoku()
