@@ -30,34 +30,65 @@ def create_frame_from_board():
 
     return frame
 
-def apply_constraints(pos, frame):
-    apply_row_constraints(pos, frame)
-    apply_col_constraints(pos, frame)
-    apply_box_constraints(pos, frame)
+already_removed_count = 0
 
-def apply_row_constraints(pos, frame):
-    start_index = pos // 9 * 9
+def apply_constraints(pos, frame):
+    apply_row_constraint(pos, frame)
+    apply_col_constraint(pos, frame)
+    apply_box_constraint(pos, frame)
+
+def apply_row_constraint(pos, frame):
+    global already_removed_count
+    start_index = (pos // 9) * 9
     end_index = start_index + 9
 
     for i in range(start_index, end_index):
+        if i == pos:
+            continue
+
         if len(frame[i]) == 1:
-            frame[pos].remove(frame[i][0]) 
+            try:
+                frame[pos].remove(frame[i][0]) 
+            except:
+                already_removed_count += 1
 
 def apply_col_constraint(pos, frame):
-    for i in [pos + i*9 for i in range(9)]:
+    global already_removed_count
+
+    start_index = pos % 9
+
+    for i in [start_index + j*9 for j in range(9)]:
+        if i == pos:
+            continue
+
         if len(frame[i]) == 1:
-            frame[pos].remove(frame[i][0]) 
+            try:
+                frame[pos].remove(frame[i][0]) 
+            except:
+                already_removed_count += 1
 
 def apply_box_constraint(pos, frame):
-    box_start = pos // 27 * 27
+    global already_removed_count
+    box_start = (pos // 3) * 3 - 9 * ((pos // 9) % 3)
 
     for i in range(3):
         for j in range(3):
+            if box_start + i*9 + j == pos:
+                continue
+
             if len(frame[box_start + i*9 + j]) == 1:
-                frame[pos].remove(frame[box_start + i*9 + j][0])
+                try:
+                    frame[pos].remove(frame[box_start + i*9 + j][0])
+                except:
+                    already_removed_count += 1
 
 if __name__ == "__main__":
     start_frame = create_frame_from_board()
 
-    apply_box_constraint(1, start_frame)
+    for i in range(4):
+        for j in range(81):
+            apply_constraints(j, start_frame)
+        
     print_board(start_frame)
+
+    print(already_removed_count)
