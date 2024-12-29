@@ -1,55 +1,55 @@
 from itertools import product
 
 board = [
-        [6, 0, 0, 1, 0, 0, 0, 0, 2],
-        [8, 0, 1, 0, 9, 0, 0, 0, 0],
-        [0, 7, 5, 0, 8, 4, 0, 0, 0],
-        [4, 3, 0, 0, 2, 0, 5, 6, 1],
-        [5, 1, 8, 7, 0, 0, 4, 0, 9],
-        [0, 9, 6, 4, 1, 0, 3, 0, 0],
-        [0, 0, 0, 0, 7, 0, 0, 0, 0],
-        [0, 6, 0, 0, 3, 1, 0, 5, 0],
-        [7, 0, 2, 5, 4, 0, 6, 0, 3],
-        ]
+        6, 0, 0, 1, 0, 0, 0, 0, 2,
+        8, 0, 1, 0, 9, 0, 0, 0, 0,
+        0, 7, 5, 0, 8, 4, 0, 0, 0,
+        4, 3, 0, 0, 2, 0, 5, 6, 1,
+        5, 1, 8, 7, 0, 0, 4, 0, 9,
+        0, 9, 6, 4, 1, 0, 3, 0, 0,
+        0, 0, 0, 0, 7, 0, 0, 0, 0,
+        0, 6, 0, 0, 3, 1, 0, 5, 0,
+        7, 0, 2, 5, 4, 0, 6, 0, 3,
+    ]
 
-def printb(board):
-    for i in board:
-        for j in i:
-            print(j, end=" ")
-
+def print_board(frame=board):
+    for i in range(9):
+        for j in range(9):
+            print(frame[i*9+j], end=" ")
         print()
+    print()
 
-def check_num_in_row(row, num):
-    if num < 1 or num > 9:
-        raise Exception("Number being checked for in row must be between 1 and 9.")
-    if num in board[row]:
-        return True
-    else:
-        return False
+def create_frame_from_board():
+    frame = [None] * 81
 
-def get_col(col):
-    return [x[col] for x in board]
+    for i in range(len(frame)):
+        if board[i] == 0:
+            frame[i] = list(range(1, 10))
+        else:
+            frame[i] = [board[i]]
 
-def check_num_in_col(col, num):
-    if num < 1 or num > 9:
-        raise Exception("Number being checked for in column must be between 1 and 9.")
+    return frame
 
-    if num in get_col(col):
-        return True
-    else:
-        return False
+def apply_constraints(pos, frame):
+    apply_row_constraints(pos, frame)
+    apply_col_constraints(pos, frame)
+    apply_box_constraints(pos, frame)
 
-def get_square_indicies(square_num):
-    square_row = square_num // 3
-    square_col = square_num % 3
+def apply_row_constraints(pos, frame):
+    start_index = pos // 9 * 9
+    end_index = start_index + 9
 
-    row_indicies = [square_row*3 + i for i in range(3)]
-    col_indicies = [square_col*3 + i for i in range(3)]
+    for i in range(start_index, end_index):
+        if len(frame[i]) == 1:
+            frame[pos].remove(frame[i][0]) 
 
-    return product(row_indicies, col_indicies)
-
-def place_all_in_square(square_num):
-    print(list(get_square_indicies(square_num)))
+def apply_col_constraint(pos, frame):
+    for i in [pos + i*9 for i in range(9)]:
+        if len(frame[i]) == 1:
+            frame[pos].remove(frame[i][0]) 
 
 if __name__ == "__main__":
-    place_all_in_square(3)
+    start_frame = create_frame_from_board()
+
+    apply_col_constraint(1, start_frame)
+    print_board(start_frame)
