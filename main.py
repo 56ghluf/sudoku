@@ -87,6 +87,32 @@ def apply_box_constraint(pos, frame):
                 except:
                     already_removed_count += 1
 
+def get_indicies_row(pos):
+    start_index = (pos // 9) * 9
+    end_index = start_index + 9
+    return [i for i in range(start_indei, end_indei) if i != pos]
+
+def get_indices_col(pos):
+    start_index = pos % 9
+    return [start_index + i*9 for i in range(9) if start_index + i*9 != pos] 
+
+def get_indicies_box(pos):
+    box_start = (pos // 3) * 3 - 9 * ((pos // 9) % 3)
+
+    indicies = []
+
+    for i in range(3):
+        for j in range(3):
+            if box_start + i*9 + j == pos:
+                continue
+            else:
+                indicies.append(box_start + i*9 + j)
+
+    return indicies
+
+def get_indicies(pos):
+    return get_indicies_row(pos) + get_indicies_col(pos) + get_indicies_box(pos)
+
 def solve_sudoku():
     # Run through sudoku until all constraints are filled
     new_frame = create_frame_from_board()
@@ -101,8 +127,30 @@ def solve_sudoku():
         for i in range(81):
             apply_constraints(i, new_frame)
 
-    # This is where the juicy stuff begins
+    # Constraint optimisation algorithm
+    pos = -1
+
+    for i in range(81):
+        if len(new_frame[i]) != 1:
+            pos = i
+    else:
+        print_board(new_frame)
+        return
+
+    current_frame = 0
     frames = [new_frame]
+
+    while True:
+        new_frame = deepcopy(new_frame)
+        new_frame[pos] = new_frame[pos][:1]
+        
+        for i in get_indicies:
+            apply_constraints(i, new_frame) 
+
+        frames.append(new_frame)
+        break
+    
+    print_board(new_frame)
 
 if __name__ == "__main__":
     solve_sudoku()
