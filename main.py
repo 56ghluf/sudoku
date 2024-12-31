@@ -223,8 +223,8 @@ def solve_sudoku():
             for j in range(9):
                 if len(new_frame[i*9+j]) == 1:
                     number = font.render(str(new_frame[i*9+j][0]), 1, (0, 0, 0))
-                    screen.blit(number, (l*j, l*i))
-        clock.tick(1)
+                    screen.blit(number, (l*j + l/2 - 25, l*i + l/2 - 25))
+        # clock.tick(1)
 
 def draw_frame(frame, screen, font):
     pass
