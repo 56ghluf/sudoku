@@ -38,9 +38,9 @@ def create_frame_from_board():
 already_removed_count = 0
 
 def apply_constraints(pos, frame):
-    apply_row_constraint(pos, frame)
-    apply_col_constraint(pos, frame)
-    apply_box_constraint(pos, frame)
+    if -1 in [apply_row_constraint(pos, frame), apply_col_constraint(pos, frame), apply_box_constraint(pos, frame)]:
+        return -1
+    return 0
 
 def apply_row_constraint(pos, frame):
     global already_removed_count
@@ -57,6 +57,11 @@ def apply_row_constraint(pos, frame):
             except:
                 already_removed_count += 1
 
+        if len(frame[i]) == 0:
+            return -1
+
+    return 0
+
 def apply_col_constraint(pos, frame):
     global already_removed_count
 
@@ -71,6 +76,11 @@ def apply_col_constraint(pos, frame):
                 frame[pos].remove(frame[i][0]) 
             except:
                 already_removed_count += 1
+
+        if len(frame[i]) == 0:
+            return -1
+
+    return 0
 
 def apply_box_constraint(pos, frame):
     global already_removed_count
@@ -87,12 +97,17 @@ def apply_box_constraint(pos, frame):
                 except:
                     already_removed_count += 1
 
+            if len(frame[i]) == 0:
+                return -1
+
+    return 0
+
 def get_indicies_row(pos):
     start_index = (pos // 9) * 9
     end_index = start_index + 9
-    return [i for i in range(start_indei, end_indei) if i != pos]
+    return [i for i in range(start_index, end_index) if i != pos]
 
-def get_indices_col(pos):
+def get_indicies_col(pos):
     start_index = pos % 9
     return [start_index + i*9 for i in range(9) if start_index + i*9 != pos] 
 
@@ -128,29 +143,57 @@ def solve_sudoku():
             apply_constraints(i, new_frame)
 
     # Constraint optimisation algorithm
-    pos = -1
+    bpos = -1
+    fpos = 0
+    next_pos = False
 
     for i in range(81):
         if len(new_frame[i]) != 1:
-            pos = i
-    else:
-        print_board(new_frame)
-        return
+            bpos = i
+            break
 
-    current_frame = 0
     frames = [new_frame]
+    bposes = [bpos]
 
-    while True:
-        new_frame = deepcopy(new_frame)
-        new_frame[pos] = new_frame[pos][:1]
+    unsolved = True
+
+    while unsolved:
+        new_frame = deepcopy(frames[fpos])
+        new_frame[bpos] = new_frame[bpos][:1]
         
-        for i in get_indicies:
-            apply_constraints(i, new_frame) 
+        for i in get_indicies(bpos):
+            if apply_constraints(i, new_frame) == -1:
+                if len(frames[fpos][bpos]) > 1:
+                    frames[fpos][bpos].remove(new_frame[bpos][0])
+                    next_pos = False
+                else:
+                    frames[fpos-1][bposes[fpos]].remove(frames[fpos][bposes[fpos]][0])
+                    bpos = bposes[fpos]
+                    
+                    next_pos = False
 
-        frames.append(new_frame)
-        break
-    
-    print_board(new_frame)
+                    frames.pop()
+                    bposes.pop()
+
+                    fpos -= 1
+                break
+        else:
+            frames.append(new_frame)
+            bposes.append(bpos)
+
+            fpos += 1
+            next_pos = True
+
+        if next_pos:
+            for i in range(81):
+                if len(frames[fpos][i]) != 1:
+                    bpos = i
+                    break
+            else:
+                unsolved = False
+                break
+
+    print_board(frames[-1])
 
 if __name__ == "__main__":
     solve_sudoku()
