@@ -14,186 +14,183 @@ import pygame
 #        7, 0, 2, 5, 4, 0, 6, 0, 3,
 #    ]
 
-board = [0, 3, 0, 2, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 5, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 7, 0, 0, 1, 0, 7, 0, 6, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 3, 0, 9, 0, 0, 0, 0, 0, 0, 7, 6, 0, 0, 4, 6, 0, 0, 5, 0, 2, 0, 0, 0, 1, 0, 0, 0, 8, 4, 0, 0]
+class Board:
+    def __init__(self):
+        self.board = [0, 3, 0, 2, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 5, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 7, 0, 0, 1, 0, 7, 0, 6, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 3, 0, 9, 0, 0, 0, 0, 0, 0, 7, 6, 0, 0, 4, 6, 0, 0, 5, 0, 2, 0, 0, 0, 1, 0, 0, 0, 8, 4, 0, 0]
+    
+    def set_board(self, board):
+        self.board = board
+        self.print_board()
 
-def print_board(frame=board):
-    for i in range(9):
-        for j in range(9):
-            print(frame[i*9+j], end=" ")
+    def print_board(self, frame=None):
+        for i in range(9):
+            for j in range(9):
+                print((self.board or frame)[i*9+j], end=" ")
+            print()
         print()
-    print()
 
-print_board()
+    def create_frame_from_board(self):
+        frame = [None] * 81
 
-def create_frame_from_board():
-    frame = [None] * 81
+        for i in range(len(frame)):
+            if self.board[i] == 0:
+                frame[i] = list(range(1, 10))
+            else:
+                frame[i] = [self.board[i]]
 
-    for i in range(len(frame)):
-        if board[i] == 0:
-            frame[i] = list(range(1, 10))
-        else:
-            frame[i] = [board[i]]
+        return frame
 
-    return frame
-
-already_removed_count = 0
-
-def apply_constraints(pos, frame):
-    if -1 in [apply_row_constraint(pos, frame), apply_col_constraint(pos, frame), apply_box_constraint(pos, frame)]:
-        return -1
-    return 0
-
-def apply_row_constraint(pos, frame):
-    global already_removed_count
-    start_index = (pos // 9) * 9
-    end_index = start_index + 9
-
-    for i in range(start_index, end_index):
-        if i == pos:
-            continue
-
-        if len(frame[i]) == 1:
-            try:
-                frame[pos].remove(frame[i][0]) 
-            except:
-                already_removed_count += 1
-
-        if len(frame[i]) == 0:
+    def apply_constraints(self, pos, frame):
+        if -1 in [self.apply_row_constraint(pos, frame), self.apply_col_constraint(pos, frame), self.apply_box_constraint(pos, frame)]:
             return -1
+        return 0
 
-    return 0
+    def apply_row_constraint(self, pos, frame):
+        start_index = (pos // 9) * 9
+        end_index = start_index + 9
 
-def apply_col_constraint(pos, frame):
-    global already_removed_count
-
-    start_index = pos % 9
-
-    for i in [start_index + j*9 for j in range(9)]:
-        if i == pos:
-            continue
-
-        if len(frame[i]) == 1:
-            try:
-                frame[pos].remove(frame[i][0]) 
-            except:
-                already_removed_count += 1
-
-        if len(frame[i]) == 0:
-            return -1
-
-    return 0
-
-def apply_box_constraint(pos, frame):
-    global already_removed_count
-    box_start = (pos // 3) * 3 - 9 * ((pos // 9) % 3)
-
-    for i in range(3):
-        for j in range(3):
-            if box_start + i*9 + j == pos:
+        for i in range(start_index, end_index):
+            if i == pos:
                 continue
 
-            if len(frame[box_start + i*9 + j]) == 1:
+            if len(frame[i]) == 1:
                 try:
-                    frame[pos].remove(frame[box_start + i*9 + j][0])
+                    frame[pos].remove(frame[i][0]) 
                 except:
-                    already_removed_count += 1
+                    pass
 
             if len(frame[i]) == 0:
                 return -1
 
-    return 0
+        return 0
 
-def get_indicies_row(pos):
-    start_index = (pos // 9) * 9
-    end_index = start_index + 9
-    return [i for i in range(start_index, end_index) if i != pos]
+    def apply_col_constraint(self, pos, frame):
+        start_index = pos % 9
 
-def get_indicies_col(pos):
-    start_index = pos % 9
-    return [start_index + i*9 for i in range(9) if start_index + i*9 != pos] 
-
-def get_indicies_box(pos):
-    box_start = (pos // 3) * 3 - 9 * ((pos // 9) % 3)
-
-    indicies = []
-
-    for i in range(3):
-        for j in range(3):
-            if box_start + i*9 + j == pos:
+        for i in [start_index + j*9 for j in range(9)]:
+            if i == pos:
                 continue
-            else:
-                indicies.append(box_start + i*9 + j)
 
-    return indicies
+            if len(frame[i]) == 1:
+                try:
+                    frame[pos].remove(frame[i][0]) 
+                except:
+                    pass
 
-def get_indicies(pos):
-    return get_indicies_row(pos) + get_indicies_col(pos) + get_indicies_box(pos)
+            if len(frame[i]) == 0:
+                return -1
 
-def solve_sudoku():
-    # Run through sudoku until all constraints are filled
-    new_frame = create_frame_from_board()
-    old_frame = deepcopy(new_frame)
+        return 0
 
-    for i in range(81):
-        apply_constraints(i, new_frame)
+    def apply_box_constraint(self, pos, frame):
+        box_start = (pos // 3) * 3 - 9 * ((pos // 9) % 3)
 
-    while old_frame != new_frame:
-        old_frame = deepcopy(new_frame)
+        for i in range(3):
+            for j in range(3):
+                if box_start + i*9 + j == pos:
+                    continue
+
+                if len(frame[box_start + i*9 + j]) == 1:
+                    try:
+                        frame[pos].remove(frame[box_start + i*9 + j][0])
+                    except:
+                        pass
+
+                if len(frame[i]) == 0:
+                    return -1
+
+        return 0
+
+    def get_indicies_row(self, pos):
+        start_index = (pos // 9) * 9
+        end_index = start_index + 9
+        return [i for i in range(start_index, end_index) if i != pos]
+
+    def get_indicies_col(self, pos):
+        start_index = pos % 9
+        return [start_index + i*9 for i in range(9) if start_index + i*9 != pos] 
+
+    def get_indicies_box(self, pos):
+        box_start = (pos // 3) * 3 - 9 * ((pos // 9) % 3)
+
+        indicies = []
+
+        for i in range(3):
+            for j in range(3):
+                if box_start + i*9 + j == pos:
+                    continue
+                else:
+                    indicies.append(box_start + i*9 + j)
+
+        return indicies
+
+    def get_indicies(self, pos):
+        return self.get_indicies_row(pos) + self.get_indicies_col(pos) + self.get_indicies_box(pos)
+
+    def solve_initial_constraints(self):
+        # Run through sudoku until all constraints are filled
+        self.new_frame = self.create_frame_from_board()
+        old_frame = deepcopy(self.new_frame)
 
         for i in range(81):
-            apply_constraints(i, new_frame)
+            self.apply_constraints(i, self.new_frame)
 
-    # Constraint optimisation algorithm
-    bpos = -1
-    fpos = 0
-    next_pos = False
+        while old_frame != self.new_frame:
+            old_frame = deepcopy(self.new_frame)
 
-    for i in range(81):
-        if len(new_frame[i]) != 1:
-            bpos = i
-            break
+            for i in range(81):
+                self.apply_constraints(i, self.new_frame)
 
-    frames = [new_frame]
-    bposes = [bpos]
+    def initialize_parameters(self):
+        # Constraint optimisation algorithm
+        self.bpos = 0
+        self.fpos = 0
+        self.next_pos = False
 
-    unsolved = True
+        for i in range(81):
+            if len(self.new_frame[i]) != 1:
+                self.bpos = i
+                break
 
-    while unsolved:
-        new_frame = deepcopy(frames[fpos])
-        new_frame[bpos] = new_frame[bpos][:1]
+        self.frames = [self.new_frame]
+        self.bposes = [self.bpos]
+
+        self.unsolved = True
+
+    def take_step(self):
+        self.new_frame = deepcopy(self.frames[self.fpos])
+        self.new_frame[self.bpos] = self.new_frame[self.bpos][:1]
         
-        for i in get_indicies(bpos):
-            if apply_constraints(i, new_frame) == -1:
-                if len(frames[fpos][bpos]) > 1:
-                    frames[fpos][bpos].remove(new_frame[bpos][0])
-                    next_pos = False
+        for i in self.get_indicies(self.bpos):
+            if self.apply_constraints(i, self.new_frame) == -1:
+                if len(self.frames[self.fpos][self.bpos]) > 1:
+                    self.frames[self.fpos][self.bpos].remove(self.new_frame[self.bpos][0])
+                    self.next_pos = False
                 else:
-                    frames[fpos-1][bposes[fpos]].remove(frames[fpos][bposes[fpos]][0])
-                    bpos = bposes[fpos]
+                    self.frames[self.fpos-1][self.bposes[self.fpos]].remove(self.frames[self.fpos][self.bposes[self.fpos]][0])
+                    self.bpos = self.bposes[self.fpos]
                     
-                    next_pos = False
+                    self.next_pos = False
 
-                    frames.pop()
-                    bposes.pop()
+                    self.frames.pop()
+                    self.bposes.pop()
 
-                    fpos -= 1
+                    self.fpos -= 1
                 break
         else:
-            frames.append(new_frame)
-            bposes.append(bpos)
+            self.frames.append(self.new_frame)
+            self.bposes.append(self.bpos)
 
-            fpos += 1
-            next_pos = True
+            self.fpos += 1
+            self.next_pos = True
 
-        if next_pos:
+        if self.next_pos:
             for i in range(81):
-                if len(frames[fpos][i]) != 1:
-                    bpos = i
+                if len(self.frames[self.fpos][i]) != 1:
+                    self.bpos = i
                     break
             else:
-                unsolved = False
-
-    print_board(new_frame)
+                self.unsolved = False
 
 """
     # Pygame setup
@@ -233,4 +230,15 @@ def draw_frame(frame, screen, font):
     pass
 
 if __name__ == "__main__":
-    solve_sudoku()
+    board = Board()
+
+    board.print_board()
+
+    board.solve_initial_constraints()
+    board.initialize_parameters()
+
+    while board.unsolved:
+        board.take_step()
+
+    board.print_board(frame=board.new_frame)
+    print(board.new_frame)
