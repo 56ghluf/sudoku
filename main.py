@@ -158,6 +158,44 @@ def solve_sudoku():
 
     unsolved = True
 
+    while unsolved:
+        new_frame = deepcopy(frames[fpos])
+        new_frame[bpos] = new_frame[bpos][:1]
+        
+        for i in get_indicies(bpos):
+            if apply_constraints(i, new_frame) == -1:
+                if len(frames[fpos][bpos]) > 1:
+                    frames[fpos][bpos].remove(new_frame[bpos][0])
+                    next_pos = False
+                else:
+                    frames[fpos-1][bposes[fpos]].remove(frames[fpos][bposes[fpos]][0])
+                    bpos = bposes[fpos]
+                    
+                    next_pos = False
+
+                    frames.pop()
+                    bposes.pop()
+
+                    fpos -= 1
+                break
+        else:
+            frames.append(new_frame)
+            bposes.append(bpos)
+
+            fpos += 1
+            next_pos = True
+
+        if next_pos:
+            for i in range(81):
+                if len(frames[fpos][i]) != 1:
+                    bpos = i
+                    break
+            else:
+                unsolved = False
+
+    print_board(new_frame)
+
+"""
     # Pygame setup
     pygame.init()
 
@@ -173,58 +211,23 @@ def solve_sudoku():
 
     font = pygame.font.SysFont(None, 50)
 
-    while runing:
-        # Pygame quit
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                runing = False
+    # Pygame quit
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            runing = False
             
-        if unsolved:
-            new_frame = deepcopy(frames[fpos])
-            new_frame[bpos] = new_frame[bpos][:1]
-            
-            for i in get_indicies(bpos):
-                if apply_constraints(i, new_frame) == -1:
-                    if len(frames[fpos][bpos]) > 1:
-                        frames[fpos][bpos].remove(new_frame[bpos][0])
-                        next_pos = False
-                    else:
-                        frames[fpos-1][bposes[fpos]].remove(frames[fpos][bposes[fpos]][0])
-                        bpos = bposes[fpos]
-                        
-                        next_pos = False
+    # Rendering code
+    pygame.display.flip()
+    
+    screen.fill((255, 255, 255))
 
-                        frames.pop()
-                        bposes.pop()
-
-                        fpos -= 1
-                    break
-            else:
-                frames.append(new_frame)
-                bposes.append(bpos)
-
-                fpos += 1
-                next_pos = True
-
-            if next_pos:
-                for i in range(81):
-                    if len(frames[fpos][i]) != 1:
-                        bpos = i
-                        break
-                else:
-                    unsolved = False
-
-        # Rendering code
-        pygame.display.flip()
-        
-        screen.fill((255, 255, 255))
-
-        for i in range(9):
-            for j in range(9):
-                if len(new_frame[i*9+j]) == 1:
-                    number = font.render(str(new_frame[i*9+j][0]), 1, (0, 0, 0))
-                    screen.blit(number, (l*j + l/2 - 25, l*i + l/2 - 25))
-        # clock.tick(1)
+    for i in range(9):
+        for j in range(9):
+            if len(new_frame[i*9+j]) == 1:
+                number = font.render(str(new_frame[i*9+j][0]), 1, (0, 0, 0))
+                screen.blit(number, (l*j + l/2 - 25, l*i + l/2 - 25))
+    # clock.tick(1)
+"""
 
 def draw_frame(frame, screen, font):
     pass
