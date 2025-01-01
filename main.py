@@ -23,9 +23,10 @@ class Board:
         self.print_board()
 
     def print_board(self, frame=None):
+        frame = frame or self.board
         for i in range(9):
             for j in range(9):
-                print((self.board or frame)[i*9+j], end=" ")
+                print(frame[i*9+j], end=" ")
             print()
         print()
 
@@ -241,4 +242,3 @@ if __name__ == "__main__":
         board.take_step()
 
     board.print_board(frame=board.new_frame)
-    print(board.new_frame)
