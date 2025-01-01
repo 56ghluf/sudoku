@@ -196,17 +196,22 @@ class Board:
 class InputBox:
     def __init__(self, x, y, w, h, screen):
         self.input_rect = pygame.Rect(x, y, w, h)
+        self.cover_rect = pygame.Rect(x + 1, y + 1, w - 2, h - 2)
 
         self.screen = screen
 
         self.active = False
-        self.text = "8"
+        self.text = ""
 
         self.font = pygame.font.Font(None, int(w*1.5))
 
+        self.passive_colour = (240, 240, 240)
+        self.active_colour = (255, 255, 255)
+
     def draw(self):
         text_surface = self.font.render(self.text, True, "black")
-        pygame.draw.rect(self.screen, (150, 200, 250), self.input_rect)
+        current_colour = self.active_colour if self.active else self.passive_colour
+        pygame.draw.rect(self.screen, current_colour, self.cover_rect)
 
         font_size = self.font.size(self.text)
         self.screen.blit(text_surface,
@@ -247,37 +252,31 @@ class Window:
 
         self.board = Board()
 
+        w = self.WIDTH / 9
+        self.input_boxes = [InputBox((i//9)*w, (i - (i//9) * 9)*w, w, w, self.screen) for i in range(81)]
+
     def show(self):
         runing = True
         
-        box = InputBox(10, 10, 60, 60, self.screen)
         while runing:
             # Pygame quit
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     runing = False
 
-                box.handle_event(event)
+                for input_box in self.input_boxes:
+                    input_box.handle_event(event)
                     
             # Background colour
-            self.screen.fill((255, 255, 255))
+            self.screen.fill((200, 200, 200))
 
-            box.draw()
+            for input_box in self.input_boxes:
+                input_box.draw()
 
             # Show the display
             pygame.display.flip()
 
             self.clock.tick(200)
-"""
-    for i in range(9):
-        for j in range(9):
-            if len(new_frame[i*9+j]) == 1:
-                number = font.render(str(new_frame[i*9+j][0]), 1, (0, 0, 0))
-                screen.blit(number, (l*j + l/2 - 25, l*i + l/2 - 25))
-    # clock.tick(1)
-"""
-
-
 
 if __name__ == "__main__":
     """
