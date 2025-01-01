@@ -193,32 +193,82 @@ class Board:
             else:
                 self.unsolved = False
 
+class InputBox:
+    def __init__(self, x, y, w, h, screen):
+        self.input_rect = pygame.Rect(x, y, w, h)
+
+        self.screen = screen
+
+        self.active = False
+        self.text = "8"
+
+        self.font = pygame.font.Font(None, int(w*1.5))
+
+    def draw(self):
+        text_surface = self.font.render(self.text, True, "black")
+        pygame.draw.rect(self.screen, (150, 200, 250), self.input_rect)
+
+        font_size = self.font.size(self.text)
+        self.screen.blit(text_surface,
+                         (self.input_rect.x + self.input_rect.w/2 - font_size[0]/2,
+                          self.input_rect.y + self.input_rect.h/2 - font_size[1]/2.3))
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.input_rect.collidepoint(event.pos):
+                self.active = not self.active
+            else:
+                self.active = False
+
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                if event.type == pygame.K_RETURN:
+                    self.active = False
+                elif event.type == pygame.K_BACKSPACE:
+                    print("Hit backspace")
+                    self.text = ""
+                else:
+                    if event.unicode in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+                        self.text = event.unicode
+                        self.active = False
+
+class Window:
+    def __init__(self):
+        self.WIDTH = 750
+        self.HEIGHT = 750
+
+        # Start pygame
+        pygame.init()
+
+        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.clock = pygame.time.Clock()
+
+        self.font = pygame.font.SysFont(None, 50)
+
+        self.board = Board()
+
+    def show(self):
+        runing = True
+        
+        box = InputBox(10, 10, 60, 60, self.screen)
+        while runing:
+            # Pygame quit
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    runing = False
+
+                box.handle_event(event)
+                    
+            # Background colour
+            self.screen.fill((255, 255, 255))
+
+            box.draw()
+
+            # Show the display
+            pygame.display.flip()
+
+            self.clock.tick(200)
 """
-    # Pygame setup
-    pygame.init()
-
-    WIDTH = 750
-    HEIGHT = 750
-
-    l = WIDTH / 9
-
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    clock = pygame.time.Clock()
-
-    runing = True
-
-    font = pygame.font.SysFont(None, 50)
-
-    # Pygame quit
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            runing = False
-            
-    # Rendering code
-    pygame.display.flip()
-    
-    screen.fill((255, 255, 255))
-
     for i in range(9):
         for j in range(9):
             if len(new_frame[i*9+j]) == 1:
@@ -227,10 +277,10 @@ class Board:
     # clock.tick(1)
 """
 
-def draw_frame(frame, screen, font):
-    pass
+
 
 if __name__ == "__main__":
+    """
     board = Board()
 
     board.print_board()
@@ -242,3 +292,7 @@ if __name__ == "__main__":
         board.take_step()
 
     board.print_board(frame=board.new_frame)
+    """
+
+    window = Window()
+    window.show()
