@@ -224,8 +224,8 @@ class InputBox:
             if self.active:
                 if event.type == pygame.K_RETURN:
                     self.active = False
-                elif event.type == pygame.K_BACKSPACE:
-                    print("Hit backspace")
+                # For backspace
+                elif event.unicode == "\b":
                     self.text = ""
                 else:
                     if event.unicode in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:
