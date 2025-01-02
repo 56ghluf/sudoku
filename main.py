@@ -226,7 +226,8 @@ class InputBox:
 
         if event.type == pygame.KEYDOWN:
             if self.active:
-                if event.type == pygame.K_RETURN:
+                if event.unicode == "\r":
+                    print("Pressed enter")
                     self.active = False
                 # For backspace
                 elif event.unicode == "\b":
@@ -362,16 +363,5 @@ class Window:
             self.input_boxes[i].text = str(self.board.new_frame[i][0]) if len(self.board.new_frame[i]) == 1 else ""
 
 if __name__ == "__main__":
-    """
-    board = Board()
-
-    board.print_board()
-
-    while board.unsolved:
-        board.take_step()
-
-    board.print_board(frame=board.new_frame)
-    """
-
     window = Window()
     window.show()
