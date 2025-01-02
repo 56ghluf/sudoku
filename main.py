@@ -249,13 +249,13 @@ class Button:
         self.text_x = self.clickable_rect.x + self.clickable_rect.w/2 - self.font.size(self.text)[0]/2
         self.text_y = self.clickable_rect.y + self.clickable_rect.h/2 - self.font.size(self.text)[1]/2
 
-        self.passive_colour = (100, 100, 230)
-        self.active_colour = (100, 100, 255)
+        self.passive_colour = (50, 160, 210)
+        self.active_colour = (60, 190, 255)
 
         self.screen = screen
 
     def draw(self):
-        current_colour = self.active_colour if pygame.time.get_ticks() - self.clicked_time < 100 else self.passive_colour
+        current_colour = self.active_colour if pygame.time.get_ticks() - self.clicked_time < 200 else self.passive_colour
         pygame.draw.rect(self.screen, current_colour, self.clickable_rect)
 
         text_surface = self.font.render(self.text, True, "black") 
