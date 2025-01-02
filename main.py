@@ -1,4 +1,4 @@
-
+from copy import deepcopy
 import pygame
 
 #board = [
@@ -237,7 +237,7 @@ class InputBox:
                         self.active = False
 
 class Button:
-    def __init__(self, x, y, w, h, screen, text, font_size=50):
+    def __init__(self, x, y, w, h, screen, text, font_size, callback):
         self.clickable_rect = pygame.Rect(x, y, w, h)
 
         self.clicked_time = 0
@@ -254,6 +254,8 @@ class Button:
 
         self.screen = screen
 
+        self.callback = callback
+
     def draw(self):
         current_colour = self.active_colour if pygame.time.get_ticks() - self.clicked_time < 200 else self.passive_colour
         pygame.draw.rect(self.screen, current_colour, self.clickable_rect)
@@ -265,6 +267,7 @@ class Button:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.clickable_rect.collidepoint(event.pos):
                 self.clicked_time = pygame.time.get_ticks()
+                self.callback()
 
 class Window:
     def __init__(self):
@@ -279,12 +282,21 @@ class Window:
 
         self.font = pygame.font.SysFont(None, 50)
 
+        # Create the board with all the logic
         self.board = Board()
 
-        w = self.WIDTH / 9
-        self.input_boxes = [InputBox((i//9)*w, (i - (i//9) * 9)*w, w, w, self.screen) for i in range(81)]
+        self.solve_state = False
 
-        self.solve_button = Button(0, 600, 100, 50, self.screen, "Solve")
+        self.first_step_taken = False
+
+        w = self.WIDTH / 9
+        self.input_boxes = [InputBox((i - (i//9) * 9)*w, (i//9)*w, w, w, self.screen) for i in range(81)]
+
+        self.solve_button = Button(0, 600, 100, 50, self.screen, "Solve", 50, lambda: self.verifiy_solve_state())
+
+    # Used for the button
+    def verifiy_solve_state(self):
+        self.solve_state = True
 
     def show(self):
         runing = True
@@ -295,12 +307,14 @@ class Window:
                 if event.type == pygame.QUIT:
                     runing = False
 
-                # Input for input boxes
-                for input_box in self.input_boxes:
-                    input_box.handle_event(event)
+                # Stuff that should only happen when not solving
+                if not self.solve_state:
+                    # Input for input boxes
+                    for input_box in self.input_boxes:
+                        input_box.handle_event(event)
 
-                # Solve button
-                self.solve_button.handle_event(event)
+                    # Solve button
+                    self.solve_button.handle_event(event)
                     
             # Background colour
             self.screen.fill((200, 200, 200))
@@ -315,16 +329,43 @@ class Window:
             # Show the display
             pygame.display.flip()
 
-            self.clock.tick(200)
+            # Do the actual solving here
+            if self.solve_state:
+                self.solve_sudoku()
+
+                if not self.board.unsolved:
+                    self.solve_state = False
+                    self.first_step_taken = False
+
+    # Function to solve the sudoku
+    def solve_sudoku(self):
+        if not self.first_step_taken:
+            # Create the borad from the input boxes
+            for i in range(81):
+                if self.input_boxes[i].text == "":
+                    self.board.board[i] = 0
+                else:
+                    print(int(self.input_boxes[i].text))
+                    self.board.board[i] = int(self.input_boxes[i].text)
+
+            # Solve the initial constraints and intialize parameters
+            self.board.solve_initial_constraints()
+            self.board.initialize_parameters()
+            
+            # Make sure not to take this first step again
+            self.first_step_taken = True
+
+        self.board.take_step()
+
+        # Update all the input boxes
+        for i in range(81):
+            self.input_boxes[i].text = str(self.board.new_frame[i][0]) if len(self.board.new_frame[i]) == 1 else ""
 
 if __name__ == "__main__":
     """
     board = Board()
 
     board.print_board()
-
-    board.solve_initial_constraints()
-    board.initialize_parameters()
 
     while board.unsolved:
         board.take_step()
