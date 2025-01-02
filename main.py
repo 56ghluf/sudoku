@@ -1,5 +1,4 @@
-from itertools import product
-from copy import deepcopy
+
 import pygame
 
 #board = [
@@ -209,10 +208,10 @@ class InputBox:
         self.active_colour = (255, 255, 255)
 
     def draw(self):
-        text_surface = self.font.render(self.text, True, "black")
         current_colour = self.active_colour if self.active else self.passive_colour
         pygame.draw.rect(self.screen, current_colour, self.cover_rect)
 
+        text_surface = self.font.render(self.text, True, "black")
         font_size = self.font.size(self.text)
         self.screen.blit(text_surface,
                          (self.input_rect.x + self.input_rect.w/2 - font_size[0]/2,
@@ -237,10 +236,40 @@ class InputBox:
                         self.text = event.unicode
                         self.active = False
 
+class Button:
+    def __init__(self, x, y, w, h, screen, text, font_size=50):
+        self.clickable_rect = pygame.Rect(x, y, w, h)
+
+        self.clicked_time = 0
+
+        self.text = text
+
+        self.font = pygame.font.Font(None, font_size) 
+
+        self.text_x = self.clickable_rect.x + self.clickable_rect.w/2 - self.font.size(self.text)[0]/2
+        self.text_y = self.clickable_rect.y + self.clickable_rect.h/2 - self.font.size(self.text)[1]/2
+
+        self.passive_colour = (100, 100, 230)
+        self.active_colour = (100, 100, 255)
+
+        self.screen = screen
+
+    def draw(self):
+        current_colour = self.active_colour if pygame.time.get_ticks() - self.clicked_time < 100 else self.passive_colour
+        pygame.draw.rect(self.screen, current_colour, self.clickable_rect)
+
+        text_surface = self.font.render(self.text, True, "black") 
+        self.screen.blit(text_surface, (self.text_x, self.text_y))
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.clickable_rect.collidepoint(event.pos):
+                self.clicked_time = pygame.time.get_ticks()
+
 class Window:
     def __init__(self):
-        self.WIDTH = 750
-        self.HEIGHT = 750
+        self.WIDTH = 600
+        self.HEIGHT = 700
 
         # Start pygame
         pygame.init()
@@ -255,23 +284,33 @@ class Window:
         w = self.WIDTH / 9
         self.input_boxes = [InputBox((i//9)*w, (i - (i//9) * 9)*w, w, w, self.screen) for i in range(81)]
 
+        self.solve_button = Button(0, 600, 100, 50, self.screen, "Solve")
+
     def show(self):
         runing = True
         
         while runing:
-            # Pygame quit
             for event in pygame.event.get():
+                # Pygame quit
                 if event.type == pygame.QUIT:
                     runing = False
 
+                # Input for input boxes
                 for input_box in self.input_boxes:
                     input_box.handle_event(event)
+
+                # Solve button
+                self.solve_button.handle_event(event)
                     
             # Background colour
             self.screen.fill((200, 200, 200))
 
+            # All the input boxes
             for input_box in self.input_boxes:
                 input_box.draw()
+
+            # Solve button
+            self.solve_button.draw()
 
             # Show the display
             pygame.display.flip()
