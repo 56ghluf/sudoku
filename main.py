@@ -227,7 +227,6 @@ class InputBox:
         if event.type == pygame.KEYDOWN:
             if self.active:
                 if event.unicode == "\r":
-                    print("Pressed enter")
                     self.active = False
                 # For backspace
                 elif event.unicode == "\b":
@@ -346,7 +345,6 @@ class Window:
                 if self.input_boxes[i].text == "":
                     self.board.board[i] = 0
                 else:
-                    print(int(self.input_boxes[i].text))
                     self.board.board[i] = int(self.input_boxes[i].text)
 
             # Solve the initial constraints and intialize parameters
