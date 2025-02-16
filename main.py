@@ -145,7 +145,6 @@ class Board:
         # Constraint optimisation algorithm
         self.bpos = 0
         self.fpos = 0
-        self.next_pos = False
 
         for i in range(81):
             if len(self.new_frame[i]) != 1:
@@ -165,13 +164,10 @@ class Board:
             if self.apply_constraints(i, self.new_frame) == -1:
                 if len(self.frames[self.fpos][self.bpos]) > 1:
                     self.frames[self.fpos][self.bpos].remove(self.new_frame[self.bpos][0])
-                    self.next_pos = False
                 else:
                     self.frames[self.fpos-1][self.bposes[self.fpos]].remove(self.frames[self.fpos][self.bposes[self.fpos]][0])
                     self.bpos = self.bposes[self.fpos]
                     
-                    self.next_pos = False
-
                     self.frames.pop()
                     self.bposes.pop()
 
@@ -182,9 +178,7 @@ class Board:
             self.bposes.append(self.bpos)
 
             self.fpos += 1
-            self.next_pos = True
 
-        if self.next_pos:
             for i in range(81):
                 if len(self.frames[self.fpos][i]) != 1:
                     self.bpos = i
