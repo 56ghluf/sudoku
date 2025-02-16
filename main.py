@@ -16,6 +16,7 @@ import pygame
 class Board:
     def __init__(self):
         self.board = [0, 3, 0, 2, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 5, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 7, 0, 0, 1, 0, 7, 0, 6, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 3, 0, 9, 0, 0, 0, 0, 0, 0, 7, 6, 0, 0, 4, 6, 0, 0, 5, 0, 2, 0, 0, 0, 1, 0, 0, 0, 8, 4, 0, 0]
+        self.invalid_board = False
     
     def set_board(self, board):
         self.board = board
@@ -133,13 +134,17 @@ class Board:
         old_frame = deepcopy(self.new_frame)
 
         for i in range(81):
-            self.apply_constraints(i, self.new_frame)
+            if self.apply_constraints(i, self.new_frame) == -1:
+                self.invalid_board = True
+                return
 
         while old_frame != self.new_frame:
             old_frame = deepcopy(self.new_frame)
 
             for i in range(81):
-                self.apply_constraints(i, self.new_frame)
+                if self.apply_constraints(i, self.new_frame) == -1:
+                    self.invalid_board = True
+                    return
 
     def initialize_parameters(self):
         # Constraint optimisation algorithm
@@ -165,6 +170,10 @@ class Board:
                 if len(self.frames[self.fpos][self.bpos]) > 1:
                     self.frames[self.fpos][self.bpos].remove(self.new_frame[self.bpos][0])
                 else:
+                    if self.fpos == 0:
+                        self.invalid_board = True
+                        return
+
                     self.frames[self.fpos-1][self.bposes[self.fpos]].remove(self.frames[self.fpos][self.bposes[self.fpos]][0])
                     self.bpos = self.bposes[self.fpos]
                     
@@ -185,6 +194,26 @@ class Board:
                     break
             else:
                 self.unsolved = False
+
+class Panel:
+    def __init__(self, x, y, w, h, text, screen):
+        self.rect = pygame.Rect(x, y, w, h)
+
+        self.screen = screen
+
+        self.font = pygame.font.Font(None, int(w*0.16))
+
+        self.text_surface = self.font.render(text, True, "black")
+        self.font_size = self.font.size(text)
+
+        self.colour = (255, 240, 240)
+
+    def draw(self):
+        pygame.draw.rect(self.screen, self.colour, self.rect)
+
+        self.screen.blit(self.text_surface,
+                         (self.rect.x + self.rect.w/2 - self.font_size[0]/2,
+                          self.rect.y + self.rect.h/2 - self.font_size[1]/2.3))
 
 class InputBox:
     def __init__(self, x, y, w, h, screen):
@@ -288,9 +317,17 @@ class Window:
 
         self.solve_button = Button(0, 600, 100, 50, self.screen, "Solve", 50, lambda: self.verifiy_solve_state())
 
+        self.invalid_panel = Panel(self.WIDTH / 2 - 250, self.HEIGHT / 2 - 50, 500, 100, "Sudoku is invalid", self.screen)
+        self.invalid_button = Button(0, 0, 100, 50, self.screen, "Continue", 30, lambda: self.verify_validity())
+
     # Used for the button
     def verifiy_solve_state(self):
         self.solve_state = True
+
+    # Reset board to being valid
+    def verify_validity(self):
+        self.solve_state = False
+        self.board.invalid_board = False
 
     def show(self):
         runing = True
@@ -309,6 +346,9 @@ class Window:
 
                     # Solve button
                     self.solve_button.handle_event(event)
+
+                if self.solve_state and self.board.invalid_board:
+                    self.invalid_button.handle_event(event)
                     
             # Background colour
             self.screen.fill((200, 200, 200))
@@ -320,13 +360,18 @@ class Window:
             # Solve button
             self.solve_button.draw()
 
+            # Show the error message if the board is invalid
+            if self.board.invalid_board:
+                self.invalid_panel.draw()
+                self.invalid_button.draw()
+
             # Show the display
             pygame.display.flip()
 
             #self.clock.tick(1)
 
             # Do the actual solving here
-            if self.solve_state:
+            if self.solve_state and not self.board.invalid_board:
                 self.solve_sudoku()
 
                 if not self.board.unsolved:
@@ -346,11 +391,16 @@ class Window:
             # Solve the initial constraints and intialize parameters
             self.board.solve_initial_constraints()
             self.board.initialize_parameters()
+            if self.board.invalid_board:
+                return
             
             # Make sure not to take this first step again
             self.first_step_taken = True
 
         self.board.take_step()
+
+        if self.board.invalid_board:
+            return
 
         # Update all the input boxes
         for i in range(81):
