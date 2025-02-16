@@ -329,6 +329,8 @@ class Window:
             # Show the display
             pygame.display.flip()
 
+            self.clock.tick(1)
+
             # Do the actual solving here
             if self.solve_state:
                 self.solve_sudoku()
