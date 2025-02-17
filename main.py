@@ -206,7 +206,7 @@ class Panel:
         self.text_surface = self.font.render(text, True, "black")
         self.font_size = self.font.size(text)
 
-        self.colour = (255, 240, 240)
+        self.colour = (244, 51, 51)
 
     def draw(self):
         pygame.draw.rect(self.screen, self.colour, self.rect)
@@ -317,8 +317,8 @@ class Window:
 
         self.solve_button = Button(0, 600, 100, 50, self.screen, "Solve", 50, lambda: self.verifiy_solve_state())
 
-        self.invalid_panel = Panel(self.WIDTH / 2 - 250, self.HEIGHT / 2 - 50, 500, 100, "Sudoku is invalid", self.screen)
-        self.invalid_button = Button(0, 0, 100, 50, self.screen, "Continue", 30, lambda: self.verify_validity())
+        self.invalid_panel = Panel(self.WIDTH / 2 - 250, self.HEIGHT / 2 - 100, 500, 100, "Sudoku is invalid", self.screen)
+        self.invalid_button = Button(self.WIDTH / 2 - 50, self.HEIGHT / 2 + 10, 100, 50, self.screen, "Continue", 30, lambda: self.verify_validity())
 
     # Used for the button
     def verifiy_solve_state(self):
