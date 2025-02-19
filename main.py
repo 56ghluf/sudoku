@@ -315,19 +315,33 @@ class Window:
         w = self.WIDTH / 9
         self.input_boxes = [InputBox((i - (i//9) * 9)*w, (i//9)*w, w, w, self.screen) for i in range(81)]
 
-        self.solve_button = Button(0, 600, 100, 50, self.screen, "Solve", 50, lambda: self.verifiy_solve_state())
+        # Solve the current board
+        self.solve_button = Button(0, 600, 100, 50, self.screen, "Solve", 50, self.verifiy_solve_state)
 
+        # Cancel solving
+        self.cancel
+
+        # Reset the board
+        self.reset_button = Button(200, 600, 100, 50, self.screen, "Reset", 50, self.reset_board)
+
+        # Used for the reset button
         self.invalid_panel = Panel(self.WIDTH / 2 - 250, self.HEIGHT / 2 - 100, 500, 100, "Sudoku is invalid", self.screen)
-        self.invalid_button = Button(self.WIDTH / 2 - 50, self.HEIGHT / 2 + 10, 100, 50, self.screen, "Continue", 30, lambda: self.verify_validity())
+        self.invalid_button = Button(self.WIDTH / 2 - 50, self.HEIGHT / 2 + 10, 100, 50, self.screen, "Continue", 30, self.verify_validity)
 
-    # Used for the button
+    # Go into solve state
     def verifiy_solve_state(self):
         self.solve_state = True
+
+    # Reset all the numbers to nothing
+    def reset_board(self):
+        for i in range(len(self.input_boxes)):
+            self.input_boxes[i].text = ""
 
     # Reset board to being valid
     def verify_validity(self):
         self.solve_state = False
         self.board.invalid_board = False
+
 
     def show(self):
         runing = True
@@ -347,6 +361,9 @@ class Window:
                     # Solve button
                     self.solve_button.handle_event(event)
 
+                    # Rest board button
+                    self.reset_button.handle_event(event)
+
                 if self.solve_state and self.board.invalid_board:
                     self.invalid_button.handle_event(event)
                     
@@ -359,6 +376,9 @@ class Window:
 
             # Solve button
             self.solve_button.draw()
+
+            # Reset board button
+            self.reset_button.draw()
 
             # Show the error message if the board is invalid
             if self.board.invalid_board:
