@@ -319,10 +319,10 @@ class Window:
         self.solve_button = Button(0, 600, 100, 50, self.screen, "Solve", 50, self.verifiy_solve_state)
 
         # Cancel solving
-        self.cancel
+        self.cancel_button = Button(100, 600, 125, 50, self.screen, "Cancel", 50, self.cancel_solving)
 
         # Reset the board
-        self.reset_button = Button(200, 600, 100, 50, self.screen, "Reset", 50, self.reset_board)
+        self.reset_button = Button(225, 600, 100, 50, self.screen, "Reset", 50, self.reset_board)
 
         # Used for the reset button
         self.invalid_panel = Panel(self.WIDTH / 2 - 250, self.HEIGHT / 2 - 100, 500, 100, "Sudoku is invalid", self.screen)
@@ -332,6 +332,10 @@ class Window:
     def verifiy_solve_state(self):
         self.solve_state = True
 
+    # Cancel the solving
+    def cancel_solving(self):
+        self.solve_state = False
+
     # Reset all the numbers to nothing
     def reset_board(self):
         for i in range(len(self.input_boxes)):
@@ -340,6 +344,7 @@ class Window:
     # Reset board to being valid
     def verify_validity(self):
         self.solve_state = False
+        self.first_step_taken = False
         self.board.invalid_board = False
 
 
@@ -364,9 +369,12 @@ class Window:
                     # Rest board button
                     self.reset_button.handle_event(event)
 
+                else:
+                    self.cancel_button.handle_event(event)
+
                 if self.solve_state and self.board.invalid_board:
                     self.invalid_button.handle_event(event)
-                    
+
             # Background colour
             self.screen.fill((200, 200, 200))
 
@@ -376,6 +384,9 @@ class Window:
 
             # Solve button
             self.solve_button.draw()
+
+            # Cancel solving button
+            self.cancel_button.draw()
 
             # Reset board button
             self.reset_button.draw()
