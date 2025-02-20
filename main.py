@@ -388,7 +388,7 @@ class Window:
 
             # Seperation between squares
             for sep_rect in self.sep_rects:
-                pygame.draw.rect(self.screen, (0, 0, 0), sep_rect)
+                pygame.draw.rect(self.screen, (100, 100, 100), sep_rect)
 
             # Solve button
             self.solve_button.draw()
@@ -407,7 +407,7 @@ class Window:
             # Show the display
             pygame.display.flip()
 
-            #self.clock.tick(1)
+            # self.clock.tick(1)
 
             # Do the actual solving here
             if self.solve_state and not self.board.invalid_board:
