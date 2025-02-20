@@ -315,6 +315,10 @@ class Window:
         w = self.WIDTH / 9
         self.input_boxes = [InputBox((i - (i//9) * 9)*w, (i//9)*w, w, w, self.screen) for i in range(81)]
 
+        # Seperation between squares
+        self.sep_rects = [pygame.Rect(i*3*w + 3*w - 1, 0, 2, 600) for i in range(2)]
+        self.sep_rects.extend([pygame.Rect(0, i*3*w + 3*w - 1, 600, 2) for i in range(2)])
+
         # Solve the current board
         self.solve_button = Button(0, 600, 100, 50, self.screen, "Solve", 50, self.verifiy_solve_state)
 
@@ -381,6 +385,10 @@ class Window:
             # All the input boxes
             for input_box in self.input_boxes:
                 input_box.draw()
+
+            # Seperation between squares
+            for sep_rect in self.sep_rects:
+                pygame.draw.rect(self.screen, (0, 0, 0), sep_rect)
 
             # Solve button
             self.solve_button.draw()
